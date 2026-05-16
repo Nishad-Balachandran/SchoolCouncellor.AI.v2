@@ -1,0 +1,10 @@
+nest-cli
+tsconfig.json
+tsconfig.build.json
+test
+dist
+node_modules
+.env
+.env.example
+*.log
+.DS_Store
