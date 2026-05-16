@@ -11,6 +11,7 @@ import { CounselingSession } from './counseling-session.entity';
 export enum MessageRole {
   USER = 'user',
   AI = 'ai',
+  COUNSELOR = 'counselor',
   SYSTEM = 'system',
 }
 
@@ -22,13 +23,13 @@ export class SessionMessage {
   @Column()
   sessionId: string;
 
-  @Column({ type: 'enum', enum: MessageRole })
+  @Column({ type: 'simple-enum', enum: MessageRole })
   role: MessageRole;
 
   @Column({ type: 'text' })
   content: string;
 
-  @Column({ type: 'json', nullable: true })
+  @Column({ type: 'simple-json', nullable: true })
   metadata: Record<string, any>;
 
   @CreateDateColumn()

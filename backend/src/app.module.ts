@@ -10,6 +10,7 @@ import { AppointmentsModule } from './appointments/appointments.module';
 import { AiModule } from './ai/ai.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { typeOrmConfig } from './config/database.config';
+import { SeedModule } from './seed/seed.module';
 
 @Module({
   imports: [
@@ -17,13 +18,17 @@ import { typeOrmConfig } from './config/database.config';
       isGlobal: true,
       envFilePath: '.env',
     }),
-    TypeOrmModule.forRoot(typeOrmConfig),
+    TypeOrmModule.forRoot({
+      ...typeOrmConfig,
+      autoLoadEntities: true,
+    }),
     AuthModule,
     UsersModule,
     CounselingModule,
     AppointmentsModule,
     AiModule,
     AnalyticsModule,
+    SeedModule,
   ],
   controllers: [AppController],
   providers: [AppService],

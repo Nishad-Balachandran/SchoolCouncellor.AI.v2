@@ -28,13 +28,13 @@ export class Appointment {
   @Column()
   counselorId: string;
 
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'datetime' })
   scheduledTime: Date;
 
   @Column({ type: 'integer', default: 60 })
   durationMinutes: number;
 
-  @Column({ type: 'enum', enum: AppointmentStatus, default: AppointmentStatus.SCHEDULED })
+  @Column({ type: 'simple-enum', enum: AppointmentStatus, default: AppointmentStatus.SCHEDULED })
   status: AppointmentStatus;
 
   @Column({ type: 'text', nullable: true })

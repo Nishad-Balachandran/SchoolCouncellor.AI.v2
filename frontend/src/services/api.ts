@@ -60,6 +60,10 @@ class ApiClient {
     return this.client.get('/counseling/sessions');
   }
 
+  async getCounselorQueueSessions() {
+    return this.client.get('/counseling/sessions/queue');
+  }
+
   async getSession(sessionId: string) {
     return this.client.get(`/counseling/sessions/${sessionId}`);
   }
@@ -68,6 +72,16 @@ class ApiClient {
     return this.client.post(`/counseling/sessions/${sessionId}/messages`, {
       content,
     });
+  }
+
+  async addCounselorMessage(sessionId: string, content: string) {
+    return this.client.post(`/counseling/sessions/${sessionId}/counselor-message`, {
+      content,
+    });
+  }
+
+  async claimSession(sessionId: string) {
+    return this.client.post(`/counseling/sessions/${sessionId}/claim`);
   }
 
   async getMessages(sessionId: string) {

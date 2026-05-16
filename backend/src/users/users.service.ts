@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../entities/user.entity';
+import { User, UserRole } from '../entities/user.entity';
 
 @Injectable()
 export class UsersService {
@@ -11,7 +11,8 @@ export class UsersService {
   ) {}
 
   async findAll() {
-    return this.usersRepository.find();
+    const users = await this.usersRepository.find();
+    return users.map((user) => this.sanitizeUser(user));
   }
 
   async findById(id: string) {
@@ -19,7 +20,7 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    return user;
+    return this.sanitizeUser(user);
   }
 
   async findByEmail(email: string) {
@@ -32,20 +33,30 @@ export class UsersService {
   }
 
   async delete(id: string) {
-    const user = await this.findById(id);
+    const user = await this.usersRepository.findOne({ where: { id } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
     await this.usersRepository.delete(id);
-    return user;
+    return this.sanitizeUser(user);
   }
 
   async getCounselors() {
-    return this.usersRepository.find({
-      where: { role: 'counselor' },
+    const users = await this.usersRepository.find({
+      where: { role: UserRole.COUNSELOR },
     });
+    return users.map((user) => this.sanitizeUser(user));
   }
 
   async getStudents() {
-    return this.usersRepository.find({
-      where: { role: 'student' },
+    const users = await this.usersRepository.find({
+      where: { role: UserRole.STUDENT },
     });
+    return users.map((user) => this.sanitizeUser(user));
+  }
+
+  private sanitizeUser(user: User) {
+    const { password, ...sanitized } = user;
+    return sanitized;
   }
 }

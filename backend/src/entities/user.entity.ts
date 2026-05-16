@@ -34,7 +34,7 @@ export class User {
   @Column()
   lastName: string;
 
-  @Column({ type: 'enum', enum: UserRole, default: UserRole.STUDENT })
+  @Column({ type: 'simple-enum', enum: UserRole, default: UserRole.STUDENT })
   role: UserRole;
 
   @Column({ nullable: true })

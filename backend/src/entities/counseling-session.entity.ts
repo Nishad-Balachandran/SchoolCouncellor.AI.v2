@@ -31,13 +31,13 @@ export class CounselingSession {
   @Column({ type: 'text', nullable: true })
   summary: string;
 
-  @Column({ type: 'enum', enum: SessionStatus, default: SessionStatus.ACTIVE })
+  @Column({ type: 'simple-enum', enum: SessionStatus, default: SessionStatus.ACTIVE })
   status: SessionStatus;
 
-  @Column({ type: 'json', nullable: true })
+  @Column({ type: 'simple-json', nullable: true })
   aiContext: Record<string, any>;
 
-  @Column({ type: 'text', array: true, nullable: true })
+  @Column({ type: 'simple-json', nullable: true })
   goals: string[];
 
   @CreateDateColumn()

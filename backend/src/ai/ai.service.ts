@@ -94,7 +94,7 @@ Keep responses concise, warm, and appropriate for school settings.`,
 
   async extractTopics(text: string): Promise<string[]> {
     // Simple keyword extraction - can be enhanced with NLP
-    const topics = [];
+    const topics: string[] = [];
     const keywords = {
       'academic': ['grades', 'homework', 'exam', 'study', 'school'],
       'personal': ['family', 'home', 'parents', 'friends', 'relationship'],

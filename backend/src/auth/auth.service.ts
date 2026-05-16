@@ -2,9 +2,8 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '../entities/user.entity';
-import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
+import { User, UserRole } from '../entities/user.entity';
+import { LoginDto, RegisterDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -30,7 +29,7 @@ export class AuthService {
       password,
       firstName,
       lastName,
-      role: role || 'student',
+      role: role || UserRole.STUDENT,
     });
 
     await this.usersRepository.save(user);

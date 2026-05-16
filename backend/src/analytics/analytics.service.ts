@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CounselingSession } from '../entities/counseling-session.entity';
+import { CounselingSession, SessionStatus } from '../entities/counseling-session.entity';
 
 @Injectable()
 export class AnalyticsService {
@@ -13,10 +13,10 @@ export class AnalyticsService {
   async getDashboardStats() {
     const totalSessions = await this.sessionsRepository.count();
     const activeSessions = await this.sessionsRepository.count({
-      where: { status: 'active' },
+      where: { status: SessionStatus.ACTIVE },
     });
     const completedSessions = await this.sessionsRepository.count({
-      where: { status: 'completed' },
+      where: { status: SessionStatus.COMPLETED },
     });
 
     return {
@@ -37,7 +37,7 @@ export class AnalyticsService {
 
     const totalSessions = sessions.length;
     const completedSessions = sessions.filter(
-      (s) => s.status === 'completed',
+      (s) => s.status === SessionStatus.COMPLETED,
     ).length;
 
     return {
@@ -63,7 +63,7 @@ export class AnalyticsService {
 
     const totalSessions = sessions.length;
     const completedSessions = sessions.filter(
-      (s) => s.status === 'completed',
+      (s) => s.status === SessionStatus.COMPLETED,
     ).length;
 
     return {

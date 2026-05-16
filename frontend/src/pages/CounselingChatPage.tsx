@@ -3,9 +3,11 @@ import { useParams } from 'react-router-dom';
 import api from '../services/api';
 import { Send, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../contexts/authStore';
 
 export const CounselingChatPage: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuthStore();
   const { sessionId } = useParams<{ sessionId: string }>();
   const [messages, setMessages] = useState<any[]>([]);
   const [inputValue, setInputValue] = useState('');
@@ -17,6 +19,16 @@ export const CounselingChatPage: React.FC = () => {
       loadSession();
       loadMessages();
     }
+  }, [sessionId]);
+
+  useEffect(() => {
+    if (!sessionId) return;
+
+    const interval = setInterval(() => {
+      loadMessages();
+    }, 3000);
+
+    return () => clearInterval(interval);
   }, [sessionId]);
 
   const loadSession = async () => {
@@ -43,12 +55,13 @@ export const CounselingChatPage: React.FC = () => {
 
     setIsLoading(true);
     try {
-      const response = await api.addMessage(sessionId!, inputValue);
-      setMessages([
-        ...messages,
-        response.data.userMessage,
-        response.data.aiMessage,
-      ]);
+      if (user?.role === 'counselor') {
+        await api.addCounselorMessage(sessionId!, inputValue);
+      } else {
+        await api.addMessage(sessionId!, inputValue);
+      }
+
+      await loadMessages();
       setInputValue('');
     } catch (error) {
       console.error('Failed to send message:', error);
@@ -70,13 +83,18 @@ export const CounselingChatPage: React.FC = () => {
           </button>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
-              AI Counseling Session
+              {user?.role === 'counselor' ? 'Counseling Session' : 'AI Counseling Session'}
             </h1>
             <p className="text-gray-600 text-sm">
               Started at {session?.createdAt
                 ? new Date(session.createdAt).toLocaleString()
                 : 'Just now'}
             </p>
+            {session?.counselorId && (
+              <p className="text-xs text-emerald-700 mt-1">
+                Counselor assigned to this session
+              </p>
+            )}
           </div>
         </div>
       </header>
@@ -94,16 +112,28 @@ export const CounselingChatPage: React.FC = () => {
                 <div
                   key={msg.id}
                   className={`flex ${
-                    msg.role === 'user' ? 'justify-end' : 'justify-start'
+                    (msg.role === 'user' && user?.role === 'student') ||
+                    (msg.role === 'counselor' && user?.role === 'counselor')
+                      ? 'justify-end'
+                      : 'justify-start'
                   }`}
                 >
                   <div
                     className={`max-w-xs px-4 py-2 rounded-lg ${
                       msg.role === 'user'
                         ? 'bg-blue-600 text-white'
+                        : msg.role === 'counselor'
+                        ? 'bg-emerald-600 text-white'
                         : 'bg-gray-200 text-gray-900'
                     }`}
                   >
+                    <p className="text-xs font-semibold opacity-80 mb-1">
+                      {msg.role === 'user'
+                        ? 'Student'
+                        : msg.role === 'counselor'
+                        ? 'Counselor'
+                        : 'AI Counselor'}
+                    </p>
                     <p>{msg.content}</p>
                     <p className="text-xs mt-1 opacity-70">
                       {new Date(msg.createdAt).toLocaleTimeString()}

@@ -11,3 +11,5 @@ dist
 *.swo
 build
 coverage
+data/
+backend/data/

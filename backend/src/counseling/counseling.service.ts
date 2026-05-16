@@ -1,10 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { CounselingSession } from '../entities/counseling-session.entity';
+import { IsNull, Repository } from 'typeorm';
+import { CounselingSession, SessionStatus } from '../entities/counseling-session.entity';
 import { SessionMessage } from '../entities/session-message.entity';
-import { MessageRole, SessionStatus } from '../entities/session-message.entity';
+import { MessageRole } from '../entities/session-message.entity';
 import { AiService } from '../ai/ai.service';
+import { UserRole } from '../entities/user.entity';
 
 @Injectable()
 export class CounselingService {
@@ -27,7 +33,34 @@ export class CounselingService {
   async getSessionsByStudent(studentId: string) {
     return this.sessionsRepository.find({
       where: { studentId },
-      relations: ['messages'],
+      relations: ['messages', 'counselor'],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async getSessionsForUser(userId: string, role: UserRole) {
+    if (role === UserRole.COUNSELOR) {
+      return this.sessionsRepository.find({
+        where: { counselorId: userId },
+        relations: ['messages', 'student', 'counselor'],
+        order: { createdAt: 'DESC' },
+      });
+    }
+
+    return this.sessionsRepository.find({
+      where: { studentId: userId },
+      relations: ['messages', 'counselor'],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async getUnassignedSessions() {
+    return this.sessionsRepository.find({
+      where: {
+        counselorId: IsNull(),
+        status: SessionStatus.ACTIVE,
+      },
+      relations: ['student', 'messages'],
       order: { createdAt: 'DESC' },
     });
   }
@@ -35,7 +68,7 @@ export class CounselingService {
   async getSession(sessionId: string) {
     const session = await this.sessionsRepository.findOne({
       where: { id: sessionId },
-      relations: ['messages'],
+      relations: ['messages', 'student', 'counselor'],
     });
     if (!session) {
       throw new NotFoundException('Session not found');
@@ -43,8 +76,47 @@ export class CounselingService {
     return session;
   }
 
-  async addMessage(sessionId: string, role: MessageRole, content: string) {
+  async getSessionForUser(sessionId: string, userId: string, role: UserRole) {
     const session = await this.getSession(sessionId);
+    this.assertSessionAccess(session, userId, role);
+    return session;
+  }
+
+  async claimSession(sessionId: string, counselorId: string) {
+    const session = await this.getSession(sessionId);
+
+    if (session.counselorId && session.counselorId !== counselorId) {
+      throw new ConflictException('Session is already assigned to another counselor');
+    }
+
+    if (!session.counselorId) {
+      session.counselorId = counselorId;
+      await this.sessionsRepository.save(session);
+    }
+
+    return this.getSession(sessionId);
+  }
+
+  async addMessage(
+    sessionId: string,
+    actorId: string,
+    role: MessageRole,
+    content: string,
+  ) {
+    const session = await this.getSession(sessionId);
+
+    if (role === MessageRole.USER && session.studentId !== actorId) {
+      throw new ForbiddenException('Only the session student can send student messages');
+    }
+
+    if (role === MessageRole.COUNSELOR) {
+      if (!session.counselorId) {
+        throw new ForbiddenException('Session must be claimed before counselor reply');
+      }
+      if (session.counselorId !== actorId) {
+        throw new ForbiddenException('Only assigned counselor can reply in this session');
+      }
+    }
 
     const message = this.messagesRepository.create({
       sessionId,
@@ -55,7 +127,7 @@ export class CounselingService {
     await this.messagesRepository.save(message);
 
     // If user message, get AI response
-    if (role === MessageRole.USER) {
+    if (role === MessageRole.USER && !session.counselorId) {
       const conversationHistory = session.messages || [];
       const aiResponse = await this.aiService.generateResponse(
         content,
@@ -84,10 +156,33 @@ export class CounselingService {
     return this.sessionsRepository.save(session);
   }
 
-  async getSessionMessages(sessionId: string) {
+  async getSessionMessages(sessionId: string, userId: string, role: UserRole) {
+    const session = await this.getSession(sessionId);
+    this.assertSessionAccess(session, userId, role);
+
     return this.messagesRepository.find({
       where: { sessionId },
       order: { createdAt: 'ASC' },
     });
+  }
+
+  private assertSessionAccess(
+    session: CounselingSession,
+    userId: string,
+    role: UserRole,
+  ) {
+    if (role === UserRole.ADMIN) {
+      return;
+    }
+
+    if (role === UserRole.STUDENT && session.studentId === userId) {
+      return;
+    }
+
+    if (role === UserRole.COUNSELOR && session.counselorId === userId) {
+      return;
+    }
+
+    throw new ForbiddenException('You do not have access to this counseling session');
   }
 }
