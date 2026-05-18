@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../contexts/authStore';
 import api from '../services/api';
 import { MessageCircle, Calendar, BarChart3, LogOut } from 'lucide-react';
 
 export const DashboardPage: React.FC = () => {
+  const navigate = useNavigate();
   const { user, logout } = useAuthStore();
   const [stats, setStats] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -104,24 +106,74 @@ export const DashboardPage: React.FC = () => {
               Quick Actions
             </h2>
             <div className="space-y-3">
-              <a
-                href="/counseling"
-                className="block bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg text-center font-medium transition"
-              >
-                Start AI Counseling Session
-              </a>
-              <a
-                href="/appointments"
-                className="block bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg text-center font-medium transition"
-              >
-                Schedule Appointment
-              </a>
-              <a
-                href="/analytics"
-                className="block bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded-lg text-center font-medium transition"
-              >
-                View Analytics
-              </a>
+              {user?.role === 'student' && (
+                <>
+                  <button
+                    onClick={() => navigate('/counseling')}
+                    className="w-full block bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg text-center font-medium transition"
+                  >
+                    Start AI Counseling Session
+                  </button>
+                  <button
+                    onClick={() => navigate('/appointments')}
+                    className="w-full block bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg text-center font-medium transition"
+                  >
+                    Schedule Appointment
+                  </button>
+                  <button
+                    onClick={() => navigate('/analytics')}
+                    className="w-full block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-lg text-center font-medium transition"
+                  >
+                    My Progress Analytics
+                  </button>
+                </>
+              )}
+
+              {user?.role === 'counselor' && (
+                <>
+                  <button
+                    onClick={() => navigate('/counseling')}
+                    className="w-full block bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg text-center font-medium transition"
+                  >
+                    Manage Counseling Queue
+                  </button>
+                  <button
+                    onClick={() => navigate('/appointments')}
+                    className="w-full block bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg text-center font-medium transition"
+                  >
+                    View Appointments
+                  </button>
+                  <button
+                    onClick={() => navigate('/analytics')}
+                    className="w-full block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-lg text-center font-medium transition"
+                  >
+                    Counselor Insights
+                  </button>
+                </>
+              )}
+
+              {user?.role === 'admin' && (
+                <>
+                  <button
+                    onClick={() => navigate('/admin')}
+                    className="w-full block bg-slate-700 hover:bg-slate-800 text-white px-4 py-3 rounded-lg text-center font-medium transition"
+                  >
+                    Open Admin Console
+                  </button>
+                  <button
+                    onClick={() => navigate('/analytics')}
+                    className="w-full block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-lg text-center font-medium transition"
+                  >
+                    Platform Analytics
+                  </button>
+                  <button
+                    onClick={() => navigate('/counseling')}
+                    className="w-full block bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg text-center font-medium transition"
+                  >
+                    Review Sessions
+                  </button>
+                </>
+              )}
             </div>
           </div>
 

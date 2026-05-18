@@ -2,12 +2,15 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { RoleProtectedRoute } from './components/RoleProtectedRoute';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { CounselingChatPage } from './pages/CounselingChatPage';
 import { CounselingPage } from './pages/CounselingPage';
 import { AppointmentsPage } from './pages/AppointmentsPage';
+import { AnalyticsPage } from './pages/AnalyticsPage';
+import { AdminPage } from './pages/AdminPage';
 import './styles/index.css';
 
 function App() {
@@ -48,6 +51,22 @@ function App() {
               <ProtectedRoute>
                 <AppointmentsPage />
               </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/analytics"
+            element={
+              <ProtectedRoute>
+                <AnalyticsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <RoleProtectedRoute allowedRoles={['admin']}>
+                <AdminPage />
+              </RoleProtectedRoute>
             }
           />
           <Route path="/" element={<Navigate to="/dashboard" replace />} />

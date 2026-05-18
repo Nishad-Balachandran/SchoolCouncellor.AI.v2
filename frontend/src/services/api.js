@@ -40,6 +40,12 @@ class ApiClient {
     async getCounselors() {
         return this.client.get('/users/counselors');
     }
+    async getUsers() {
+        return this.client.get('/users');
+    }
+    async deleteUser(userId) {
+        return this.client.delete(`/users/${userId}`);
+    }
     // Counseling endpoints
     async createSession() {
         return this.client.post('/counseling/sessions');
