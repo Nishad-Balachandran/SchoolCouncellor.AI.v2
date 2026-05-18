@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import { Calendar, Clock, MapPin, Trash2 } from 'lucide-react';
+import { Calendar, Clock, Trash2, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export const AppointmentsPage: React.FC = () => {
+  const navigate = useNavigate();
   const [appointments, setAppointments] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [counselors, setCounselors] = useState<any[]>([]);
@@ -68,13 +70,22 @@ export const AppointmentsPage: React.FC = () => {
       <header className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
-            <div>
+            <div className="flex items-start gap-3">
+              <button
+                onClick={() => navigate('/dashboard')}
+                className="mt-1 text-blue-600 hover:text-blue-700"
+                aria-label="Back to dashboard"
+              >
+                <ArrowLeft size={22} />
+              </button>
+              <div>
               <h1 className="text-2xl font-bold text-gray-900">
                 Appointments
               </h1>
               <p className="text-gray-600">
                 Schedule and manage counselor appointments
               </p>
+              </div>
             </div>
             <button
               onClick={() => setShowForm(!showForm)}

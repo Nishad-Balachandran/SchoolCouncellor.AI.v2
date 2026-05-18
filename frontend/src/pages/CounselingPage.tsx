@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../contexts/authStore';
 import api from '../services/api';
-import { Plus, MessageCircle, Loader } from 'lucide-react';
+import { Plus, MessageCircle, Loader, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export const CounselingPage: React.FC = () => {
@@ -61,7 +61,15 @@ export const CounselingPage: React.FC = () => {
       <header className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
-            <div>
+            <div className="flex items-start gap-3">
+              <button
+                onClick={() => navigate('/dashboard')}
+                className="mt-1 text-blue-600 hover:text-blue-700"
+                aria-label="Back to dashboard"
+              >
+                <ArrowLeft size={22} />
+              </button>
+              <div>
               <h1 className="text-2xl font-bold text-gray-900">
                 Counseling Sessions
               </h1>
@@ -70,6 +78,7 @@ export const CounselingPage: React.FC = () => {
                   ? 'Review and respond to assigned student sessions'
                   : 'Talk to your AI counselor anytime'}
               </p>
+              </div>
             </div>
             {user?.role === 'student' && (
               <button

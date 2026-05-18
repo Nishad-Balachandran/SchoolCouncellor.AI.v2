@@ -1,0 +1,26 @@
+import { jsxs as _jsxs, jsx as _jsx } from "react/jsx-runtime";
+import { useState, useEffect } from 'react';
+import { useAuthStore } from '../contexts/authStore';
+import api from '../services/api';
+import { MessageCircle, Calendar, BarChart3, LogOut } from 'lucide-react';
+export const DashboardPage = () => {
+    const { user, logout } = useAuthStore();
+    const [stats, setStats] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    useEffect(() => {
+        loadStats();
+    }, []);
+    const loadStats = async () => {
+        try {
+            const response = await api.getDashboardStats();
+            setStats(response.data);
+        }
+        catch (error) {
+            console.error('Failed to load stats:', error);
+        }
+        finally {
+            setIsLoading(false);
+        }
+    };
+    return (_jsxs("div", { className: "min-h-screen bg-gray-100", children: [_jsx("header", { className: "bg-white shadow", children: _jsx("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4", children: _jsxs("div", { className: "flex justify-between items-center", children: [_jsxs("div", { children: [_jsxs("h1", { className: "text-2xl font-bold text-gray-900", children: ["Welcome, ", user?.firstName, "!"] }), _jsxs("p", { className: "text-gray-600 capitalize", children: [user?.role, " Dashboard"] })] }), _jsxs("button", { onClick: logout, className: "bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center gap-2", children: [_jsx(LogOut, { size: 20 }), "Logout"] })] }) }) }), _jsxs("main", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8", children: [isLoading ? (_jsx("div", { className: "text-center py-12", children: _jsx("div", { className: "inline-block animate-spin", children: _jsx("div", { className: "w-12 h-12 border-4 border-gray-300 border-t-blue-600 rounded-full" }) }) })) : (_jsxs("div", { className: "grid grid-cols-1 md:grid-cols-3 gap-6", children: [_jsx("div", { className: "bg-white rounded-lg shadow p-6", children: _jsxs("div", { className: "flex items-center justify-between", children: [_jsxs("div", { children: [_jsx("p", { className: "text-gray-600 font-medium", children: "Total Sessions" }), _jsx("p", { className: "text-3xl font-bold text-gray-900", children: stats?.totalSessions || 0 })] }), _jsx(MessageCircle, { className: "text-blue-600", size: 40 })] }) }), _jsx("div", { className: "bg-white rounded-lg shadow p-6", children: _jsxs("div", { className: "flex items-center justify-between", children: [_jsxs("div", { children: [_jsx("p", { className: "text-gray-600 font-medium", children: "Active Sessions" }), _jsx("p", { className: "text-3xl font-bold text-gray-900", children: stats?.activeSessions || 0 })] }), _jsx(Calendar, { className: "text-green-600", size: 40 })] }) }), _jsx("div", { className: "bg-white rounded-lg shadow p-6", children: _jsxs("div", { className: "flex items-center justify-between", children: [_jsxs("div", { children: [_jsx("p", { className: "text-gray-600 font-medium", children: "Completion Rate" }), _jsxs("p", { className: "text-3xl font-bold text-gray-900", children: [stats?.completionRate || 0, "%"] })] }), _jsx(BarChart3, { className: "text-purple-600", size: 40 })] }) })] })), _jsxs("div", { className: "mt-8 grid grid-cols-1 md:grid-cols-2 gap-6", children: [_jsxs("div", { className: "bg-white rounded-lg shadow p-6", children: [_jsx("h2", { className: "text-xl font-bold text-gray-900 mb-4", children: "Quick Actions" }), _jsxs("div", { className: "space-y-3", children: [_jsx("a", { href: "/counseling", className: "block bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg text-center font-medium transition", children: "Start AI Counseling Session" }), _jsx("a", { href: "/appointments", className: "block bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg text-center font-medium transition", children: "Schedule Appointment" }), _jsx("a", { href: "/analytics", className: "block bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded-lg text-center font-medium transition", children: "View Analytics" })] })] }), _jsxs("div", { className: "bg-white rounded-lg shadow p-6", children: [_jsx("h2", { className: "text-xl font-bold text-gray-900 mb-4", children: "Profile Information" }), _jsxs("div", { className: "space-y-2 text-gray-700", children: [_jsxs("p", { children: [_jsx("strong", { children: "Name:" }), " ", user?.firstName, " ", user?.lastName] }), _jsxs("p", { children: [_jsx("strong", { children: "Email:" }), " ", user?.email] }), _jsxs("p", { children: [_jsx("strong", { children: "Role:" }), " ", user?.role?.toUpperCase()] })] })] })] })] })] }));
+};
